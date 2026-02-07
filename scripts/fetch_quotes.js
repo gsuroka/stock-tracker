@@ -36,7 +36,7 @@ async function main() {
 
   const payload = { startedAt, source: "finnhub", symbols: results };
 
-  const outPath = path.join(process.cwd(), "public", "data.json");
+  const outPath = path.join(process.cwd(), "docs", "data.json");
   fs.writeFileSync(outPath, JSON.stringify(payload, null, 2), "utf8");
   console.log(`Wrote ${outPath}`);
 }
