@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Stock Tracker</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    table { border-collapse: collapse; width: 100%; max-width: 900px; }
+    th, td { border-bottom: 1px solid #ddd; padding: 10px; text-align: left; }
+    .muted { color: #666; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h1>Stock Tracker</h1>
+  <div class="muted" id="meta">Lade…</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Symbol</th>
+        <th>Preis</th>
+        <th>Änderung</th>
+        <th>%</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script>
+    async function load() {
+      const res = await fetch("data.json?v=" + Date.now());
+      const data = await res.json();
+
+      document.getElementById("meta").textContent =
+        `Stand: ${new Date(data.startedAt).toLocaleString()} (Quelle: ${data.source})`;
+
+      const tbody = document.getElementById("rows");
+      tbody.innerHTML = "";
+
+      for (const s of data.symbols) {
+        const tr = document.createElement("tr");
+        const sign = (s.change > 0) ? "+" : "";
+        tr.innerHTML = `
+          <td>${s.symbol}</td>
+          <td>${Number(s.price).toFixed(2)}</td>
+          <td>${sign}${Number(s.change).toFixed(2)}</td>
+          <td>${sign}${Number(s.changePct).toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    load();
+    setInterval(load, 60_000); // Seite refresht alle 60s
+  </script>
+</body>
+</html>
