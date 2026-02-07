@@ -1,27 +1,27 @@
 {
-  "startedAt": "2026-02-07T14:42:44.840Z",
+  "startedAt": "2026-02-07T14:48:58.571Z",
   "source": "finnhub",
   "symbols": [
     {
-      "symbol": "AAPL",
-      "price": 278.13,
-      "prevClose": 275.91,
-      "change": 2.22,
-      "changePct": 0.8046
+      "symbol": "MU",
+      "price": 394.7,
+      "prevClose": 382.89,
+      "change": 11.81,
+      "changePct": 3.0844
     },
     {
-      "symbol": "MSFT",
-      "price": 401.15,
-      "prevClose": 393.67,
-      "change": 7.48,
-      "changePct": 1.9001
+      "symbol": "SMEGY",
+      "price": 0,
+      "prevClose": 0,
+      "change": null,
+      "changePct": null
     },
     {
-      "symbol": "TSLA",
-      "price": 411.12,
-      "prevClose": 397.21,
-      "change": 13.91,
-      "changePct": 3.5019
+      "symbol": "META",
+      "price": 661.47,
+      "prevClose": 670.21,
+      "change": -8.74,
+      "changePct": -1.3041
     },
     {
       "symbol": "NVDA",
