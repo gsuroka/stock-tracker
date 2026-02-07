@@ -8,7 +8,7 @@ if (!API_KEY) {
 }
 
 // ✅ HIER deine Aktien eintragen (US-Ticker am einfachsten)
-const SYMBOLS = ["MU", "ENR.DE", "META", "NVDA"];
+const SYMBOLS = ["MU", "SMEGY", "META", "NVDA"];
 
 async function finnhubQuote(symbol) {
   const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${API_KEY}`;
