@@ -55,12 +55,16 @@ jobs:
               `• ${p.symbol}: ${money.format(p.value || 0)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue || 0)} / ${pct(p.changePct)})`
             ).join("\n");
 
-            const body =
-      - name: Update portfolio status issue
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
+            const body = `📊 PORTFOLIO UPDATE
+
+Gesamt: ${money.format(total)}
+Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})
+
+${rows}
+
+Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}
+`;
+
 
             const data = JSON.parse(fs.readFileSync('docs/data.json','utf8'));
             const cur = data.baseCurrency || "EUR";
