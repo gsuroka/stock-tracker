@@ -32,3 +32,52 @@ jobs:
           git add docs/data.json
           git commit -m "Update data.json" || exit 0
           git push
+      - name: Update portfolio status issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+
+          const data = JSON.parse(fs.readFileSync("docs/data.json","utf8"));
+          const cur = data.baseCurrency || "EUR";
+
+          const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
+          const pct = v => `${v>=0?"+":""}${v.toFixed(2)}%`;
+          const sign = v => v>=0?"+":"";
+
+          const total = data.totals.value;
+          const day = data.totals.dayChange;
+          const dayPct = data.totals.dayChangePct;
+
+          const rows = data.positions.map(p =>
+            `• ${p.symbol}: ${money.format(p.value)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue)} / ${pct(p.changePct)})`
+          ).join("\n");
+
+          const body =
+`📊 PORTFOLIO UPDATE
+
+Gesamt: ${money.format(total)}
+Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})
+
+${rows}
+
+Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}
+`;
+
+          fs.writeFileSync("status.md", body);
+          NODE
+
+          gh issue list --limit 100 --json number,title > issues.json
+          node - <<'NODE'
+          const fs = require("fs");
+          const issues = JSON.parse(fs.readFileSync("issues.json","utf8"));
+          const found = issues.find(i=>i.title==="📊 Portfolio Auto");
+          if(found) fs.writeFileSync("id.txt",found.number.toString());
+          NODE
+
+          if [ -f id.txt ]; then
+            gh issue edit $(cat id.txt) --body-file status.md
+          else
+            gh issue create --title "📊 Portfolio Auto" --body-file status.md
+          fi
