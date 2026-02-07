@@ -2,7 +2,7 @@ name: Update quotes
 
 on:
   schedule:
-    - cron: "*/5 * * * *"   # alle 5 Minuten
+    - cron: "*/5 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -12,6 +12,7 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -32,29 +33,29 @@ jobs:
           git add docs/data.json
           git commit -m "Update data.json" || exit 0
           git push
+
       - name: Update portfolio status issue
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          node - <<'NODE'
-          const fs = require("fs");
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
 
-          const data = JSON.parse(fs.readFileSync("docs/data.json","utf8"));
-          const cur = data.baseCurrency || "EUR";
+            const data = JSON.parse(fs.readFileSync('docs/data.json','utf8'));
+            const cur = data.baseCurrency || "EUR";
 
-          const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
-          const pct = v => `${v>=0?"+":""}${v.toFixed(2)}%`;
-          const sign = v => v>=0?"+":"";
+            const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
+            const pct = v => `${v>=0?"+":""}${Number(v||0).toFixed(2)}%`;
+            const sign = v => (Number(v||0) >= 0 ? "+" : "");
 
-          const total = data.totals.value;
-          const day = data.totals.dayChange;
-          const dayPct = data.totals.dayChangePct;
+            const total = Number(data?.totals?.value || 0);
+            const day = Number(data?.totals?.dayChange || 0);
+            const dayPct = Number(data?.totals?.dayChangePct || 0);
 
-          const rows = data.positions.map(p =>
-            `• ${p.symbol}: ${money.format(p.value)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue)} / ${pct(p.changePct)})`
-          ).join("\n");
+            const rows = (data.positions || []).map(p =>
+              `• ${p.symbol}: ${money.format(p.value || 0)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue || 0)} / ${pct(p.changePct)})`
+            ).join("\n");
 
-          const body =
+            const body =
 `📊 PORTFOLIO UPDATE
 
 Gesamt: ${money.format(total)}
@@ -65,19 +66,27 @@ ${rows}
 Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}
 `;
 
-          fs.writeFileSync("status.md", body);
-          NODE
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100
+            });
 
-          gh issue list --limit 100 --json number,title > issues.json
-          node - <<'NODE'
-          const fs = require("fs");
-          const issues = JSON.parse(fs.readFileSync("issues.json","utf8"));
-          const found = issues.find(i=>i.title==="📊 Portfolio Auto");
-          if(found) fs.writeFileSync("id.txt",found.number.toString());
-          NODE
+            const existing = issues.find(i => i.title === "📊 Portfolio Auto");
 
-          if [ -f id.txt ]; then
-            gh issue edit $(cat id.txt) --body-file status.md
-          else
-            gh issue create --title "📊 Portfolio Auto" --body-file status.md
-          fi
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: "📊 Portfolio Auto",
+                body
+              });
+            }
