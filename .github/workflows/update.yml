@@ -12,7 +12,6 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -38,9 +37,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
+            const fs = require("fs");
 
-            const data = JSON.parse(fs.readFileSync('docs/data.json','utf8'));
+            const data = JSON.parse(fs.readFileSync("docs/data.json","utf8"));
             const cur = data.baseCurrency || "EUR";
 
             const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
@@ -51,68 +50,45 @@ jobs:
             const day = Number(data?.totals?.dayChange || 0);
             const dayPct = Number(data?.totals?.dayChangePct || 0);
 
-            const rows = (data.positions || []).map(p =>
-              `• ${p.symbol}: ${money.format(p.value || 0)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue || 0)} / ${pct(p.changePct)})`
-            ).join("\n");
+            const positions = (data.positions || []).map(p => {
+              const value = Number(p.value || 0);
+              const dcv = Number(p.dayChangeValue || 0);
+              const cp = Number(p.changePct || 0);
+              return `• ${p.symbol}: ${money.format(value)} (${sign(dcv)}${money.format(dcv)} / ${pct(cp)})`;
+            }).join("\n");
 
-            const body = `📊 PORTFOLIO UPDATE
+            const body = [
+              "📊 PORTFOLIO UPDATE",
+              "",
+              `Gesamt: ${money.format(total)}`,
+              `Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})`,
+              "",
+              positions,
+              "",
+              `Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}`
+            ].join("\n");
 
-Gesamt: ${money.format(total)}
-Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100
+            });
 
-${rows}
+            const existing = issues.find(i => i.title === "📊 Portfolio Auto");
 
-Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}
-`;
-
-
-     const data = JSON.parse(fs.readFileSync('docs/data.json','utf8'));
-const cur = data.baseCurrency || "EUR";
-
-const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
-const pct = v => `${v>=0?"+":""}${Number(v||0).toFixed(2)}%`;
-const sign = v => (Number(v||0) >= 0 ? "+" : "");
-
-const total = Number(data?.totals?.value || 0);
-const day = Number(data?.totals?.dayChange || 0);
-const dayPct = Number(data?.totals?.dayChangePct || 0);
-
-const rows = (data.positions || []).map(p =>
-  `• ${p.symbol}: ${money.format(p.value || 0)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue || 0)} / ${pct(p.changePct)})`
-).join("\n");
-
-const body = `📊 PORTFOLIO UPDATE
-
-Gesamt: ${money.format(total)}
-Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})
-
-${rows}
-
-Stand: ${new Date(data.startedAt).toLocaleString("de-DE")}
-`;
-
-const { data: issues } = await github.rest.issues.listForRepo({
-  owner: context.repo.owner,
-  repo: context.repo.repo,
-  state: "open",
-  per_page: 100
-});
-
-const existing = issues.find(i => i.title === "📊 Portfolio Auto");
-
-if (existing) {
-  await github.rest.issues.update({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    issue_number: existing.number,
-    body
-  });
-} else {
-  await github.rest.issues.create({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    title: "📊 Portfolio Auto",
-    body
-  });
-}
-       
+            if (existing) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: "📊 Portfolio Auto",
+                body
+              });
+            }
