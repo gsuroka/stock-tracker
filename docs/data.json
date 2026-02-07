@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-02-07T14:48:58.571Z",
+  "startedAt": "2026-02-07T15:45:00.845Z",
   "source": "finnhub",
   "symbols": [
     {
@@ -8,13 +8,6 @@
       "prevClose": 382.89,
       "change": 11.81,
       "changePct": 3.0844
-    },
-    {
-      "symbol": "SMEGY",
-      "price": 0,
-      "prevClose": 0,
-      "change": null,
-      "changePct": null
     },
     {
       "symbol": "META",
