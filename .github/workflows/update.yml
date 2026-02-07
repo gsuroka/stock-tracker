@@ -56,7 +56,28 @@ jobs:
             ).join("\n");
 
             const body =
-`📊 PORTFOLIO UPDATE
+      - name: Update portfolio status issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const data = JSON.parse(fs.readFileSync('docs/data.json','utf8'));
+            const cur = data.baseCurrency || "EUR";
+
+            const money = new Intl.NumberFormat("de-DE",{style:"currency",currency:cur});
+            const pct = v => `${v>=0?"+":""}${Number(v||0).toFixed(2)}%`;
+            const sign = v => (Number(v||0) >= 0 ? "+" : "");
+
+            const total = Number(data?.totals?.value || 0);
+            const day = Number(data?.totals?.dayChange || 0);
+            const dayPct = Number(data?.totals?.dayChangePct || 0);
+
+            const rows = (data.positions || []).map(p =>
+              `• ${p.symbol}: ${money.format(p.value || 0)} (${sign(p.dayChangeValue)}${money.format(p.dayChangeValue || 0)} / ${pct(p.changePct)})`
+            ).join("\n");
+
+            const body = `📊 PORTFOLIO UPDATE
 
 Gesamt: ${money.format(total)}
 Heute: ${sign(day)}${money.format(day)} (${pct(dayPct)})
