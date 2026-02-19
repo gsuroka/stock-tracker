@@ -1,13 +1,13 @@
 {
-  "startedAt": "2026-02-19T21:03:11.577Z",
+  "startedAt": "2026-02-19T22:01:15.338Z",
   "source": "finnhub",
   "symbols": [
     {
       "symbol": "MU",
-      "price": 417.261,
+      "price": 417.35,
       "prevClose": 420.95,
-      "change": -3.689,
-      "changePct": -0.8764
+      "change": -3.6,
+      "changePct": -0.8552
     },
     {
       "symbol": "META",
