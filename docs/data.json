@@ -1,27 +1,27 @@
 {
-  "startedAt": "2026-04-03T19:43:08.801Z",
+  "startedAt": "2026-04-03T20:04:25.697Z",
   "source": "finnhub",
   "symbols": [
     {
       "symbol": "MU",
-      "price": 366.26,
+      "price": 366.24,
       "prevClose": 367.85,
-      "change": -1.59,
-      "changePct": -0.4322
+      "change": -1.61,
+      "changePct": -0.4377
     },
     {
       "symbol": "META",
-      "price": 574.48,
+      "price": 574.46,
       "prevClose": 579.23,
-      "change": -4.75,
-      "changePct": -0.8201
+      "change": -4.77,
+      "changePct": -0.8235
     },
     {
       "symbol": "NVDA",
-      "price": 177.41,
+      "price": 177.39,
       "prevClose": 175.75,
-      "change": 1.66,
-      "changePct": 0.9445
+      "change": 1.64,
+      "changePct": 0.9331
     }
   ]
 }
