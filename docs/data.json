@@ -1,5 +1,5 @@
 {
-  "startedAt": "2026-04-07T20:03:33.915Z",
+  "startedAt": "2026-04-07T20:59:12.248Z",
   "source": "finnhub",
   "symbols": [
     {
@@ -18,10 +18,10 @@
     },
     {
       "symbol": "NVDA",
-      "price": 178.117,
+      "price": 178.1,
       "prevClose": 177.64,
-      "change": 0.477,
-      "changePct": 0.2685
+      "change": 0.46,
+      "changePct": 0.259
     }
   ]
 }
